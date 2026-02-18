@@ -30,5 +30,14 @@ pipeline {
         sh '/opt/homebrew/bin/docker build -t devops_ws .'
       }
     }
+
+    stage('Despliegue del servidor') {
+      steps {
+        sh '''
+          /opt/homebrew/bin/docker stop devops_ws || true
+          /opt/homebrew/bin/docker run -d -p 8090:8090 --name devops devops_ws
+        '''
+      }
+    }
   }
 }
