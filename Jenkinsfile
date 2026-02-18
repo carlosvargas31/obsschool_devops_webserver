@@ -23,10 +23,31 @@ pipeline {
       }
     }
 
+    stage('Configurar archivo') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'Credentials_DevOps', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
+          sh '''
+            cat > credentials.ini <<EOF
+                [credentials]
+                user=${USER}
+                password=${PASSWORD}
+            EOF
+            echo "Archivo credentials.ini creado exitosamente"
+          '''
+        }
+      }
+    }
+
     stage('Build') {
       steps {
         sh '/opt/homebrew/bin/docker build -t devops_ws .'
       }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'credentials.ini', allowEmptyArchive: true
     }
   }
 }
