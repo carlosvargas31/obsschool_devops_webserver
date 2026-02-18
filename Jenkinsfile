@@ -21,30 +21,10 @@ pipeline {
                   -Dsonar.login=${SONAR_AUTH_TOKEN}
               '''
             }
-            timeout(time: 5, unit: 'MINUTES') {
+            timeout(time: 1, unit: 'MINUTES') {
               waitForQualityGate abortPipeline: false
             }
           }
-        }
-        stage('Imprimir Env') {
-          steps {
-            echo "WORKSPACE: ${env.WORKSPACE}"
-          }
-        }
-      }
-    }
-
-    stage('Configurar archivo') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'Credentials_DevOps', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
-          sh '''
-            cat > credentials.ini <<EOF
-[credentials]
-user=${USER}
-password=${PASSWORD}
-EOF
-            echo "Archivo credentials.ini creado exitosamente"
-          '''
         }
       }
     }
@@ -53,12 +33,6 @@ EOF
       steps {
         sh '/opt/homebrew/bin/docker build -t devops_ws .'
       }
-    }
-  }
-
-  post {
-    always {
-      archiveArtifacts artifacts: 'credentials.ini', allowEmptyArchive: true
     }
   }
 }
