@@ -8,23 +8,19 @@ pipeline {
       }
     }
 
-    stage('Calidad y Entorno') {
-      parallel {
-        stage('Pruebas de SAST') {
-          steps {
-            withSonarQubeEnv('SonarQube') {
-              sh '''
-                /opt/homebrew/bin/sonar-scanner \
-                  -Dsonar.projectKey=obsschool_devops_webserver \
-                  -Dsonar.sources=. \
-                  -Dsonar.host.url=${SONAR_HOST_URL} \
-                  -Dsonar.login=${SONAR_AUTH_TOKEN}
-              '''
-            }
-            timeout(time: 1, unit: 'MINUTES') {
-              waitForQualityGate abortPipeline: false
-            }
-          }
+    stage('Pruebas de SAST') {
+      steps {
+        withSonarQubeEnv('SonarQube') {
+          sh '''
+            /opt/homebrew/bin/sonar-scanner \
+              -Dsonar.projectKey=obsschool_devops_webserver \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=${SONAR_HOST_URL} \
+              -Dsonar.login=${SONAR_AUTH_TOKEN}
+          '''
+        }
+        timeout(time: 1, unit: 'MINUTES') {
+          waitForQualityGate abortPipeline: false
         }
       }
     }
