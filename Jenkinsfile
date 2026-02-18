@@ -14,7 +14,7 @@ pipeline {
           steps {
             withSonarQubeEnv('SonarQube') {
               sh '''
-                find ~/.jenkins/tools -name "sonar-scanner" -executable -type f 2>/dev/null | head -1 | xargs -I {} {} \
+                /opt/homebrew/bin/sonar-scanner \
                   -Dsonar.projectKey=obsschool_devops_webserver \
                   -Dsonar.sources=. \
                   -Dsonar.host.url=${SONAR_HOST_URL} \
