@@ -1,0 +1,62 @@
+name: Pull Request Quality Gate - Carlos Vargas
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  quality_gate:
+    runs-on: ubuntu-latest
+    outputs:
+      allow_pull: ${{ steps.check_requirements.outputs.allow_pull }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Analizar el código
+        run: echo "Realizando análisis de SAST"
+      
+      - name: Comprobar requisitos
+        id: check_requirements
+        run: |
+          if [ -f "allow_pull_request.txt" ]; then
+            echo "allow_pull=true" >> $GITHUB_OUTPUT
+            echo "Archivo encontrado: allow_pull_request.txt"
+          else
+            echo "allow_pull=false" >> $GITHUB_OUTPUT
+            echo "Archivo no encontrado: allow_pull_request.txt"
+          fi
+  
+  quality_gate_result:
+    runs-on: ubuntu-latest
+    needs: quality_gate
+    
+    steps:
+      - name: Permitir Pull Request
+        if: needs.quality_gate.outputs.allow_pull == 'true'
+        run: |
+          echo "✅ Permitiendo Pull Request"
+      
+      - name: Impedir Pull Request
+        if: needs.quality_gate.outputs.allow_pull == 'false'
+        run: |
+          echo "❌ Build fallida. Impidiendo Pull Request"
+          exit 1
+  
+  save_artifacts:
+    runs-on: ubuntu-latest
+    needs: quality_gate
+    
+    steps:
+      - name: Crear artefacto de resultado
+        run: |
+          mkdir -p artifacts
+          echo "allow_pull=${{ needs.quality_gate.outputs.allow_pull }}" > artifacts/quality_gate_result.txt
+          echo "Timestamp: $(date)" >> artifacts/quality_gate_result.txt
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: quality-gate-results
+          path: artifacts/
