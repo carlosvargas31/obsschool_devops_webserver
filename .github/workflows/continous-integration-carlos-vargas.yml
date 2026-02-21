@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - devops-github
+      - main
+      - feature/**
+      - hotfix/**
 
 jobs:
   build:
