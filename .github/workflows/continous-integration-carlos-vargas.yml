@@ -1,0 +1,27 @@
+name: Continuous Integration - Carlos Vargas
+
+on:
+  push:
+    branches:
+      - devops-github
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Pruebas de SAST
+        run: echo "Ejecución de pruebas de SAST"
+      
+      - name: Crear archivo de credenciales
+        run: |
+          sed -e "s/\${USERNAME}/${{ secrets.USERNAME }}/g" \
+              -e "s/\${PASSWORD}/${{ secrets.PASSWORD }}/g" \
+              credentials.ini.tpl > credentials.ini
+          echo "Archivo credentials.ini creado exitosamente"
+      
+      - name: Build docker image
+        run: docker build -t devops_ws . --tag devops_ws_:$(date +%s)
