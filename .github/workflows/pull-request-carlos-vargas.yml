@@ -33,16 +33,14 @@ jobs:
     needs: quality_gate
     
     steps:
-      - name: Permitir Pull Request
-        if: needs.quality_gate.outputs.allow_pull == 'true'
+      - name: Validar Quality Gate
         run: |
-          echo "✅ Permitiendo Pull Request"
-      
-      - name: Impedir Pull Request
-        if: needs.quality_gate.outputs.allow_pull == 'false'
-        run: |
-          echo "❌ Build fallida. Impidiendo Pull Request"
-          exit 1
+          if [ "${{ needs.quality_gate.outputs.allow_pull }}" == "true" ]; then
+            echo "✅ Permitiendo Pull Request"
+          else
+            echo "❌ Build fallida. Impidiendo Pull Request"
+            exit 1
+          fi
   
   save_artifacts:
     runs-on: ubuntu-latest
@@ -56,7 +54,7 @@ jobs:
           echo "Timestamp: $(date)" >> artifacts/quality_gate_result.txt
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quality-gate-results
           path: artifacts/
