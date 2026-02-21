@@ -54,7 +54,7 @@ jobs:
           echo "Timestamp: $(date)" >> artifacts/quality_gate_result.txt
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quality-gate-results
           path: artifacts/
